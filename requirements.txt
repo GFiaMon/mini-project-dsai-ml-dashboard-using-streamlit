@@ -22,3 +22,7 @@ python-dotenv==1.1.1
 
 # Optional (for additional functionality)
 seaborn==0.13.2
+
+# Driver for the PostgreSQL connection
+psycopg2-binary
+
