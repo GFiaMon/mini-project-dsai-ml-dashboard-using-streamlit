@@ -115,7 +115,6 @@ def plot_daily_rentals():
 # ==============
 # Plot 2: BAR PLOT that displays the revenue
 
-
 def plot_revenue_by_store():
     """Creates and displays the revenue bar plot and metrics"""
     revenue_query = """
@@ -198,6 +197,48 @@ def plot_revenue_by_store():
     
     # =====
 
+    # Show metrics using the helper function
+    _show_revenue_metrics(revenue_df)
+    
+    return revenue_df
+
+
+# ==============
+# Plot 2b: Top movies dataframe (Table) with streamlit:
+
+def plot_revenue_by_store_st():
+    """Creates and displays the revenue bar plot using st.bar_chart with two colors"""
+    revenue_query = """
+    SELECT
+        s.store_id,
+        SUM(p.amount) AS total_revenue
+    FROM
+        payment p
+    JOIN
+        rental r ON p.rental_id = r.rental_id
+    JOIN
+        inventory i ON r.inventory_id = i.inventory_id
+    JOIN
+        store s ON i.store_id = s.store_id
+    GROUP BY
+        s.store_id
+    ORDER BY
+        s.store_id;
+    """
+    
+    # Fetch the data
+    revenue_df = get_data(revenue_query)
+    
+    # RESHAPE THE DATA - This is the key trick!
+    # Create a DataFrame where each store is a separate column
+    chart_df = revenue_df.set_index('store_id').T  # Transpose the data
+    
+    # Now st.bar_chart will see two different series and use different colors!
+    st.bar_chart(chart_df, height=400)
+    
+    # Add title
+    st.markdown("### Total Revenue by Store")
+    
     # Show metrics using the helper function
     _show_revenue_metrics(revenue_df)
     

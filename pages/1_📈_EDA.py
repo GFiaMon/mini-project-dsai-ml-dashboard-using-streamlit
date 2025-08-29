@@ -1,7 +1,7 @@
 # 📊_EDA.py
 import streamlit as st
 
-from ui import plot_daily_rentals, plot_revenue_by_store, show_top_movies
+from ui import plot_daily_rentals, plot_revenue_by_store, plot_revenue_by_store_st, show_top_movies
 from backend import get_data  # Only needed for the connection test
 
 # import plotly.express as px
@@ -63,7 +63,21 @@ plot_daily_rentals()  # This now handles both plot AND metrics
 st.header("Revenue Analysis")
 plot_revenue_by_store()  # This now handles both plot AND metrics
 
+# 3. Revenue Plot
+st.header("Revenue Analysis")
+plot_revenue_by_store_st()  # This now handles both plot AND metrics
+
 # 4. Top Movies
 st.header("Top 5 Most Rented Movies by Store")
 show_top_movies()  # This now handles both dataframe AND metrics
 
+def _show_footer():
+        st.divider()
+        st.caption("Built with Streamlit • Sakila Database • Guillermo Fiallo-Montero • 2025")
+    
+_show_footer()
+
+
+    # # Execute all sections
+    # _show_header()
+    # _show_main_content()

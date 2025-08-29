@@ -97,3 +97,11 @@ if st.button("🎯 Get Recommendations", type="primary"):
                     
     else:
         st.warning("⚠️ Please enter a movie description first!")
+
+def _show_footer():
+        st.divider()
+        st.caption("Built with Streamlit • Sakila Database • Guillermo Fiallo-Montero • 2025")
+    
+_show_footer()
+
+
