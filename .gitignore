@@ -3,6 +3,9 @@
 # Environment variables
 .env
 
+# Streamlit secret codes
+.streamlit/secrets.toml
+
 # Virtual environment
 venv/
 env/

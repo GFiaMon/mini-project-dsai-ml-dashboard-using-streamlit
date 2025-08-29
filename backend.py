@@ -1,5 +1,7 @@
 # backend.py
 
+import streamlit as st
+
 # 1. Import necessary libraries
 from sqlalchemy.exc import SQLAlchemyError  # <-- ADD THIS LINE
 import pandas as pd
@@ -23,7 +25,9 @@ def get_engine():
     Creates a SQLAlchemy engine for PostgreSQL using the Supabase connection string.
     """
     # Get the complete connection string from environment variable
-    connection_string = os.getenv('SUPABASE_CONNECTION_STRING')
+    # connection_string = os.getenv('SUPABASE_CONNECTION_STRING')
+    connection_string = st.secrets['SUPABASE_CONNECTION_STRING']
+
     
     if not connection_string:
         raise ValueError("❌ SUPABASE_CONNECTION_STRING not found in environment variables")
