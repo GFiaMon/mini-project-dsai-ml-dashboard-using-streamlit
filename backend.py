@@ -6,18 +6,13 @@ import streamlit as st
 from sqlalchemy.exc import SQLAlchemyError  # <-- ADD THIS LINE
 import pandas as pd
 from sqlalchemy import create_engine
-# Import the library to read the .env file
-from dotenv import load_dotenv
-# Import os to access environment variables
-import os
+
 
 # Libraries for the ML model
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-# 1. Load the environment variables from the .env file
-load_dotenv()
 
 # backend.py
 def get_engine():
@@ -36,28 +31,7 @@ def get_engine():
     engine = create_engine(connection_string)
     return engine
 
-
-
-
-# # 2. Function to create the database engine
-# def get_engine():
-#     """
-#     Creates a SQLAlchemy engine for MySQL using credentials from the .env file.
-#     Returns: A SQLAlchemy engine object.
-#     """
-#     # Get database credentials from environment variables
-#     db_host = os.getenv('DB_HOST')
-#     db_name = os.getenv('DB_NAME')
-#     db_user = os.getenv('DB_USER')
-#     db_password = os.getenv('DB_PASSWORD')
-    
-#     # Create the connection string for MySQL
-#     connection_string = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
-    
-#     # Create and return the engine
-#     engine = create_engine(connection_string)
-#     return engine
-
+@st.cache_data
 def get_data(query):
     """
     A general function to execute an SQL query and return a DataFrame.
@@ -94,26 +68,26 @@ def get_data(query):
         print("Database connection closed.")
 
 
-# Add to backend.py
-def get_movie_descriptions():
-    """
-    Fetches all movies with their title, description, and rating from the film table.
-    Returns: A pandas DataFrame.
-    """
-    query = """
-    SELECT 
-        film_id, 
-        title, 
-        description, 
-        rating
-    FROM 
-        film
-    WHERE 
-        description IS NOT NULL;
-    """
+# # Add to backend.py
+# def get_movie_descriptions():
+#     """
+#     Fetches all movies with their title, description, and rating from the film table.
+#     Returns: A pandas DataFrame.
+#     """
+#     query = """
+#     SELECT 
+#         film_id, 
+#         title, 
+#         description, 
+#         rating
+#     FROM 
+#         film
+#     WHERE 
+#         description IS NOT NULL;
+#     """
     
-    df = get_data(query)
-    return df
+#     df = get_data(query)
+#     return df
 
 # getting movie descriptions:
 
@@ -144,6 +118,7 @@ def get_movie_descriptions():
 
 
 # Loads the movie data and prepares the model.
+@st.cache_resource
 def setup_recommendation_engine():
     """
     Loads the movie data and prepares the AI model for recommendations.
