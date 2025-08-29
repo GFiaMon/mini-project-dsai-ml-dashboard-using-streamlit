@@ -78,7 +78,7 @@ FROM
 JOIN
     inventory USING (inventory_id)
 WHERE
-    YEAR(rental_date) = 2005
+    EXTRACT(YEAR FROM rental_date) = 2005  -- CHANGED HERE for PostgreSQL
 GROUP BY
     rental_day, store_id
 ORDER BY
@@ -272,7 +272,7 @@ WITH ranked_movies AS (
         f.film_id,
         f.title,
         COUNT(r.rental_id) AS rental_count,
-        ROW_NUMBER() OVER (PARTITION BY i.store_id ORDER BY COUNT(r.rental_id) DESC) AS row_rank
+        ROW_NUMBER() OVER (PARTITION BY i.store_id ORDER BY COUNT(r.rental_id) DESC) AS movie_rank
     FROM 
         rental r
     JOIN 
@@ -280,7 +280,7 @@ WITH ranked_movies AS (
     JOIN 
         film f ON i.film_id = f.film_id
     WHERE 
-        YEAR(r.rental_date) = 2005
+        EXTRACT(YEAR FROM r.rental_date) = 2005  -- CHANGED HERE for PostgreSQL
     GROUP BY 
         i.store_id, f.film_id, f.title
 )
@@ -289,13 +289,13 @@ SELECT
     film_id,
     title,
     rental_count,
-    row_rank
+    movie_rank
 FROM 
     ranked_movies
 WHERE 
-    row_rank <= 5
+    movie_rank <= 5
 ORDER BY 
-    store_id, row_rank;
+    store_id, movie_rank;
 """
 
 # Fetch the data
@@ -308,6 +308,6 @@ st.dataframe(top_movies_df)
 st.write("**Summary:**")
 for store_id in sorted(top_movies_df['store_id'].unique()):
     store_movies = top_movies_df[top_movies_df['store_id'] == store_id]
-    top_movie = store_movies[store_movies['row_rank'] == 1].iloc[0]
+    top_movie = store_movies[store_movies['movie_rank'] == 1].iloc[0]
     st.write(f"**Store {store_id}**: '{top_movie['title']}' was the most rented movie with {top_movie['rental_count']} rentals.")
 

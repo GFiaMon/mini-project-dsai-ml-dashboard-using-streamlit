@@ -1,6 +1,7 @@
 # backend.py
 
 # 1. Import necessary libraries
+from sqlalchemy.exc import SQLAlchemyError  # <-- ADD THIS LINE
 import pandas as pd
 from sqlalchemy import create_engine
 # Import the library to read the .env file
@@ -16,24 +17,42 @@ import numpy as np
 # 1. Load the environment variables from the .env file
 load_dotenv()
 
-# 2. Function to create the database engine
+# backend.py
 def get_engine():
     """
-    Creates a SQLAlchemy engine for MySQL using credentials from the .env file.
-    Returns: A SQLAlchemy engine object.
+    Creates a SQLAlchemy engine for PostgreSQL using the Supabase connection string.
     """
-    # Get database credentials from environment variables
-    db_host = os.getenv('DB_HOST')
-    db_name = os.getenv('DB_NAME')
-    db_user = os.getenv('DB_USER')
-    db_password = os.getenv('DB_PASSWORD')
+    # Get the complete connection string from environment variable
+    connection_string = os.getenv('SUPABASE_CONNECTION_STRING')
     
-    # Create the connection string for MySQL
-    connection_string = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
+    if not connection_string:
+        raise ValueError("❌ SUPABASE_CONNECTION_STRING not found in environment variables")
     
     # Create and return the engine
     engine = create_engine(connection_string)
     return engine
+
+
+
+
+# # 2. Function to create the database engine
+# def get_engine():
+#     """
+#     Creates a SQLAlchemy engine for MySQL using credentials from the .env file.
+#     Returns: A SQLAlchemy engine object.
+#     """
+#     # Get database credentials from environment variables
+#     db_host = os.getenv('DB_HOST')
+#     db_name = os.getenv('DB_NAME')
+#     db_user = os.getenv('DB_USER')
+#     db_password = os.getenv('DB_PASSWORD')
+    
+#     # Create the connection string for MySQL
+#     connection_string = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
+    
+#     # Create and return the engine
+#     engine = create_engine(connection_string)
+#     return engine
 
 def get_data(query):
     """
@@ -105,13 +124,13 @@ def get_movie_descriptions():
         f.title, 
         f.description, 
         f.rating,
-        c.name as category  # Be explicit with table aliases
+        c.name as category  -- Be explicit with table aliases
     FROM 
         film f
     JOIN
-        film_category fc ON f.film_id = fc.film_id  # Use ON instead of USING
+        film_category fc ON f.film_id = fc.film_id  -- Use ON instead of USING
     JOIN
-        category c ON fc.category_id = c.category_id  # Use ON instead of USING
+        category c ON fc.category_id = c.category_id  -- Use ON instead of USING
     WHERE 
         f.description IS NOT NULL;
     """
