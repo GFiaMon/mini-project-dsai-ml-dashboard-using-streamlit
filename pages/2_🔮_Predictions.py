@@ -1,7 +1,8 @@
 # 🔮_Prediction.py
 import streamlit as st
 
-from backend import get_movie_descriptions, setup_recommendation_engine, find_similar_movies, get_user_info, get_rental_history, get_user_top_movies
+from backend import get_movie_descriptions, setup_recommendation_engine, find_similar_movies
+# from backend import get_user_info, get_rental_history, get_user_top_movies
 import time
 
 # Set up the page
@@ -118,77 +119,77 @@ st.divider()
 # get_user_rentals(user_input2)
 
 # New section for user-based recommendations
-st.header("🎯 Personalized Recommendations")
+# st.header("🎯 Personalized Recommendations")
 
 
 # ===== USER RENTAL HISTORY SECTION =====
-st.header("📋 Your Rental History")
+# st.header("📋 Your Rental History")
 
-# User input
-user_id = st.number_input(
-    "Enter your Customer ID (1-599):", 
-    min_value=1, 
-    max_value=599, 
-    value=1,
-    help="Try IDs like 1, 5, 10 to see different users"
-)
+# # User input
+# user_id = st.number_input(
+#     "Enter your Customer ID (1-599):", 
+#     min_value=1, 
+#     max_value=599, 
+#     value=1,
+#     help="Try IDs like 1, 5, 10 to see different users"
+# )
 
-if st.button("View My Rental History", key="history_btn"):
-    with st.spinner('Loading your rental history...'):
-        try:
-            # Get user info
-            user_info_df = get_user_info(user_id)
+# if st.button("View My Rental History", key="history_btn"):
+#     with st.spinner('Loading your rental history...'):
+#         try:
+#             # Get user info
+#             user_info_df = get_user_info(user_id)
             
-            if not user_info_df.empty:
-                user_info = user_info_df.iloc[0]
+#             if not user_info_df.empty:
+#                 user_info = user_info_df.iloc[0]
                 
-                # Display user profile
-                st.success(f"✅ Found customer: {user_info['customer_name']}")
+#                 # Display user profile
+#                 st.success(f"✅ Found customer: {user_info['customer_name']}")
                 
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Customer ID", user_id)
-                with col2:
-                    st.metric("Location", f"{user_info['city']}, {user_info['country']}")
+#                 col1, col2 = st.columns(2)
+#                 with col1:
+#                     st.metric("Customer ID", user_id)
+#                 with col2:
+#                     st.metric("Location", f"{user_info['city']}, {user_info['country']}")
                 
-                # Get rental history
-                rental_history_df = get_rental_history(user_id)
+#                 # Get rental history
+#                 rental_history_df = get_rental_history(user_id)
                 
-                if not rental_history_df.empty:
-                    st.subheader("🎬 Your Complete Rental History")
-                    st.dataframe(
-                        rental_history_df[['title', 'category', 'rating', 'rental_date']],
-                        hide_index=True,
-                        use_container_width=True
-                    )
+#                 if not rental_history_df.empty:
+#                     st.subheader("🎬 Your Complete Rental History")
+#                     st.dataframe(
+#                         rental_history_df[['title', 'category', 'rating', 'rental_date']],
+#                         hide_index=True,
+#                         use_container_width=True
+#                     )
                     
-                    # Show summary stats
-                    st.subheader("📊 Your Rental Stats")
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("Total Rentals", len(rental_history_df))
-                    with col2:
-                        st.metric("First Rental", rental_history_df['rental_date'].min().strftime('%Y-%m-%d'))
-                    with col3:
-                        st.metric("Last Rental", rental_history_df['rental_date'].max().strftime('%Y-%m-%d'))
+#                     # Show summary stats
+#                     st.subheader("📊 Your Rental Stats")
+#                     col1, col2, col3 = st.columns(3)
+#                     with col1:
+#                         st.metric("Total Rentals", len(rental_history_df))
+#                     with col2:
+#                         st.metric("First Rental", rental_history_df['rental_date'].min().strftime('%Y-%m-%d'))
+#                     with col3:
+#                         st.metric("Last Rental", rental_history_df['rental_date'].max().strftime('%Y-%m-%d'))
                     
-                    # Show top movies
-                    st.subheader("🏆 Your Top Movies")
-                    top_movies_df = get_user_top_movies(user_id)
-                    for i, (_, row) in enumerate(top_movies_df.iterrows(), 1):
-                        with st.expander(f"{i}. {row['title']} ({row['category']})"):
-                            st.write(f"**Rating:** {row['rating']}")
-                            st.write(f"**Times Rented:** {row['rental_count']}")
-                            st.write(f"**Last Rented:** {row['last_rented'].strftime('%Y-%m-%d')}")
+#                     # Show top movies
+#                     st.subheader("🏆 Your Top Movies")
+#                     top_movies_df = get_user_top_movies(user_id)
+#                     for i, (_, row) in enumerate(top_movies_df.iterrows(), 1):
+#                         with st.expander(f"{i}. {row['title']} ({row['category']})"):
+#                             st.write(f"**Rating:** {row['rating']}")
+#                             st.write(f"**Times Rented:** {row['rental_count']}")
+#                             st.write(f"**Last Rented:** {row['last_rented'].strftime('%Y-%m-%d')}")
                 
-                else:
-                    st.warning("No rental history found for this customer.")
+#                 else:
+#                     st.warning("No rental history found for this customer.")
                     
-            else:
-                st.error("❌ Customer not found! Please try a different ID.")
+#             else:
+#                 st.error("❌ Customer not found! Please try a different ID.")
                 
-        except Exception as e:
-            st.error(f"Error loading data: {e}")
+#         except Exception as e:
+#             st.error(f"Error loading data: {e}")
 
 
 
