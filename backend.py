@@ -68,28 +68,8 @@ def get_data(query):
         print("Database connection closed.")
 
 
-# # Add to backend.py
-# def get_movie_descriptions():
-#     """
-#     Fetches all movies with their title, description, and rating from the film table.
-#     Returns: A pandas DataFrame.
-#     """
-#     query = """
-#     SELECT 
-#         film_id, 
-#         title, 
-#         description, 
-#         rating
-#     FROM 
-#         film
-#     WHERE 
-#         description IS NOT NULL;
-#     """
-    
-#     df = get_data(query)
-#     return df
+# ===============================
 
-# getting movie descriptions:
 
 def get_movie_descriptions():
     """
@@ -115,6 +95,8 @@ def get_movie_descriptions():
     
     df = get_data(query)
     return df
+
+# ===============================
 
 
 # Loads the movie data and prepares the model.
@@ -157,3 +139,67 @@ def find_similar_movies(user_input, model, df, embeddings, top_n=3):
     results['similarity_score'] = similarities[0][top_indices]  # Add similarity score
     
     return results
+
+# ===============================
+
+
+def get_user_info(customer_id):
+    """Get customer name and basic info by ID"""
+    query = f"""
+    SELECT 
+        customer_id,
+        first_name || ' ' || last_name AS customer_name,
+        address,
+        city,
+        country
+    FROM customer
+    JOIN address USING (address_id)
+    JOIN city USING (city_id) 
+    JOIN country USING (country_id)
+    WHERE customer_id = {customer_id};
+    """
+    return get_data(query)
+
+
+def get_rental_history(customer_id):
+    """Get complete rental history for a customer"""
+    query = f"""
+    SELECT 
+        r.rental_id,
+        f.film_id,
+        f.title,
+        f.description,
+        c.name AS category,
+        f.rating,
+        r.rental_date,
+        r.return_date
+    FROM rental r
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film f ON i.film_id = f.film_id
+    JOIN film_category fc ON f.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    WHERE r.customer_id = {customer_id}
+    ORDER BY r.rental_date DESC;
+    """
+    return get_data(query)
+
+def get_user_top_movies(customer_id, limit=10):
+    """Get top most rented movies by a customer"""
+    query = f"""
+    SELECT 
+        f.title,
+        c.name AS category,
+        f.rating,
+        COUNT(r.rental_id) AS rental_count,
+        MAX(r.rental_date) AS last_rented
+    FROM rental r
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film f ON i.film_id = f.film_id
+    JOIN film_category fc ON f.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    WHERE r.customer_id = {customer_id}
+    GROUP BY f.film_id, c.name
+    ORDER BY rental_count DESC, last_rented DESC
+    LIMIT {limit};
+    """
+    return get_data(query)

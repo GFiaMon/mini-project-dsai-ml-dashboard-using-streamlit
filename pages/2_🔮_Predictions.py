@@ -1,7 +1,7 @@
 # 🔮_Prediction.py
 import streamlit as st
 
-from backend import get_movie_descriptions, setup_recommendation_engine, find_similar_movies
+from backend import get_movie_descriptions, setup_recommendation_engine, find_similar_movies, get_user_info, get_rental_history, get_user_top_movies
 import time
 
 # Set up the page
@@ -57,6 +57,7 @@ with st.expander("🎬 Test: Load Movie Data with Descriptions & Categories"):
 
 
 # ===============================
+# 2 - Embbegging
 
 st.divider()
 
@@ -98,10 +99,105 @@ if st.button("🎯 Get Recommendations", type="primary"):
     else:
         st.warning("⚠️ Please enter a movie description first!")
 
+
+
+# ===============================
+
+st.divider()
+
+# # Get User's Rental History
+# # st.header("Get User's Rental History")
+# # show_top_movies()  # This Get User's Rental History
+
+# user_input2 = st.text_area(
+#     "Tell me a Customer ID:",
+#     placeholder="1 - 599",
+#     height=100
+# )
+
+# get_user_rentals(user_input2)
+
+# New section for user-based recommendations
+st.header("🎯 Personalized Recommendations")
+
+
+# ===== USER RENTAL HISTORY SECTION =====
+st.header("📋 Your Rental History")
+
+# User input
+user_id = st.number_input(
+    "Enter your Customer ID (1-599):", 
+    min_value=1, 
+    max_value=599, 
+    value=1,
+    help="Try IDs like 1, 5, 10 to see different users"
+)
+
+if st.button("View My Rental History", key="history_btn"):
+    with st.spinner('Loading your rental history...'):
+        try:
+            # Get user info
+            user_info_df = get_user_info(user_id)
+            
+            if not user_info_df.empty:
+                user_info = user_info_df.iloc[0]
+                
+                # Display user profile
+                st.success(f"✅ Found customer: {user_info['customer_name']}")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Customer ID", user_id)
+                with col2:
+                    st.metric("Location", f"{user_info['city']}, {user_info['country']}")
+                
+                # Get rental history
+                rental_history_df = get_rental_history(user_id)
+                
+                if not rental_history_df.empty:
+                    st.subheader("🎬 Your Complete Rental History")
+                    st.dataframe(
+                        rental_history_df[['title', 'category', 'rating', 'rental_date']],
+                        hide_index=True,
+                        use_container_width=True
+                    )
+                    
+                    # Show summary stats
+                    st.subheader("📊 Your Rental Stats")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Total Rentals", len(rental_history_df))
+                    with col2:
+                        st.metric("First Rental", rental_history_df['rental_date'].min().strftime('%Y-%m-%d'))
+                    with col3:
+                        st.metric("Last Rental", rental_history_df['rental_date'].max().strftime('%Y-%m-%d'))
+                    
+                    # Show top movies
+                    st.subheader("🏆 Your Top Movies")
+                    top_movies_df = get_user_top_movies(user_id)
+                    for i, (_, row) in enumerate(top_movies_df.iterrows(), 1):
+                        with st.expander(f"{i}. {row['title']} ({row['category']})"):
+                            st.write(f"**Rating:** {row['rating']}")
+                            st.write(f"**Times Rented:** {row['rental_count']}")
+                            st.write(f"**Last Rented:** {row['last_rented'].strftime('%Y-%m-%d')}")
+                
+                else:
+                    st.warning("No rental history found for this customer.")
+                    
+            else:
+                st.error("❌ Customer not found! Please try a different ID.")
+                
+        except Exception as e:
+            st.error(f"Error loading data: {e}")
+
+
+
+
 def _show_footer():
         st.divider()
         st.caption("Built with Streamlit • Sakila Database • Guillermo Fiallo-Montero • 2025")
-    
+
+
 _show_footer()
 
 
